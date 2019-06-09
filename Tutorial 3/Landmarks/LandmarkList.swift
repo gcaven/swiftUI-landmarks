@@ -5,39 +5,37 @@ Abstract:
 A view showing a list of landmarks.
 */
 
+
 import SwiftUI
 
 struct LandmarkList: View {
-    @State var showFavoritesOnly = false
+  @EnvironmentObject var userData: UserData
   
-    var body: some View {
-        NavigationView {
-          List {
-            Toggle(isOn: $showFavoritesOnly) {
-              Text("Favourites Only")
+  var body: some View {
+    NavigationView {
+      List {
+        Toggle(isOn: $userData.showFavoritesOnly) {
+          Text("Favorites only")
+        }
+        
+        ForEach(userData.landmarks) { landmark in
+          if !self.userData.showFavoritesOnly || landmark.isFavorite {
+            NavigationButton(destination: LandmarkDetail(landmark: landmark)) {
+              LandmarkRow(landmark: landmark)
             }
-            
-            ForEach(landmarkData) { landmark in
-              if !self.showFavoritesOnly || landmark.isFavorite {
-                NavigationButton(destination: LandmarkDetail(landmark: landmark)) {
-                  LandmarkRow(landmark: landmark)
-                }
-              }
-            }
-            .navigationBarTitle(Text("Landmarks"), displayMode: .large)
           }
         }
+        }
+        .navigationBarTitle(Text("Landmarks"))
     }
+  }
 }
 
 #if DEBUG
 struct LandmarkList_Previews: PreviewProvider {
-    static var previews: some View {
-        ForEach(["iPhone XS"].identified(by: \.self)) { deviceName in
-            LandmarkList()
-                .previewDevice(PreviewDevice(rawValue: deviceName))
-                .previewDisplayName(deviceName)
-        }
-    }
+  static var previews: some View {
+    LandmarkList()
+      .environmentObject(UserData())
+  }
 }
 #endif
